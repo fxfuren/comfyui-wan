@@ -6,6 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Модели лежат в /workspace/ComfyUI/models/
 WORKDIR /workspace/ComfyUI/models
 
+# ── Создаём все папки сразу ───────────────────────────────────────────────────
+RUN mkdir -p diffusion_models loras clip_vision vae clip detection
+
 # ── Diffusion model ──────────────────────────────────────────────────────────
 RUN wget -q --show-progress \
     -O diffusion_models/Wan21_SteadyDancer_fp8_e4m3fn_scaled_KJ.safetensors \
