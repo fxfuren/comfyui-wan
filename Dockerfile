@@ -52,6 +52,6 @@ COPY copy_models.sh /copy_models.sh
 RUN chmod +x /copy_models.sh
 
 # Вшиваем вызов в начало entrypoint базового образа
-RUN sed -i '1s|^|/copy_models.sh\n|' /start.sh
+RUN sed -i '1s|^|/bin/bash /copy_models.sh\n|' /start.sh
 
 WORKDIR /
