@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-echo "Running model copy..."
-/bin/bash /copy_models.sh
+# Патчим start.sh чтобы ComfyUI нашёл модели в /model-cache/
+# Делаем это ДО запуска start.sh, не трогая /workspace
+sed -i 's|python main\.py|python main.py --extra-model-paths-config /extra_model_paths.yaml|g' /start.sh
 
-echo "Starting original start.sh..."
 exec /start.sh

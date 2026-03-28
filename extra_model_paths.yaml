@@ -1,0 +1,8 @@
+wanvideo_cache:
+    base_path: /model-cache
+    diffusion_models: diffusion_models/
+    loras: loras/
+    clip_vision: clip_vision/
+    vae: vae/
+    clip: clip/
+    detection: detection/
