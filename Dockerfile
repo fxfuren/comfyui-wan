@@ -46,9 +46,9 @@ RUN wget -q --show-progress \
         "https://huggingface.co/JunkyByte/easy_ViTPose/resolve/main/onnx/wholebody/vitpose-l-wholebody.onnx"
 
 COPY copy_models.sh /copy_models.sh
+COPY entrypoint.sh /entrypoint.sh
+
 RUN chmod +x /copy_models.sh
+RUN chmod +x /entrypoint.sh
 
-# вставляем ПОСЛЕ shebang
-RUN sed -i '2i /bin/bash /copy_models.sh' /start.sh
-
-WORKDIR /
+ENTRYPOINT ["/entrypoint.sh"]
