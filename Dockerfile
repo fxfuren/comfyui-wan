@@ -1,12 +1,11 @@
-# Базируемся на официальном образе хаб-шаблона cw3nka7d08
 FROM runpod/comfyui:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Модели лежат в /workspace/ComfyUI/models/
-WORKDIR /workspace/ComfyUI/models
+# Кладём модели в /model-cache/ — вне volume /workspace
+# Иначе volume при монтировании перекроет всё что в /workspace
+WORKDIR /model-cache
 
-# ── Создаём все папки сразу ───────────────────────────────────────────────────
 RUN mkdir -p diffusion_models loras clip_vision vae clip detection
 
 # ── Diffusion model ──────────────────────────────────────────────────────────
@@ -35,8 +34,7 @@ RUN wget -q --show-progress \
     "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/umt5-xxl-enc-bf16.safetensors"
 
 # ── Detectors ─────────────────────────────────────────────────────────────────
-RUN mkdir -p detection && \
-    wget -q --show-progress \
+RUN wget -q --show-progress \
         -O detection/yolov10m.onnx \
         "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B/resolve/main/process_checkpoint/det/yolov10m.onnx" && \
     wget -q --show-progress \
@@ -48,5 +46,12 @@ RUN mkdir -p detection && \
     wget -q --show-progress \
         -O detection/vitpose-l-wholebody.onnx \
         "https://huggingface.co/JunkyByte/easy_ViTPose/resolve/main/onnx/wholebody/vitpose-l-wholebody.onnx"
+
+# Скрипт копирует модели из /model-cache/ в /workspace/ComfyUI/models/ при первом старте
+COPY copy_models.sh /copy_models.sh
+RUN chmod +x /copy_models.sh
+
+# Вшиваем вызов в начало entrypoint базового образа
+RUN sed -i '1s|^|/copy_models.sh\n|' /start.sh
 
 WORKDIR /
