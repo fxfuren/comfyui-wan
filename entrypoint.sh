@@ -4,13 +4,12 @@ set -e
 echo "Running model copy..."
 /bin/bash /copy_models.sh
 
-mkdir -p /workspace/runpod-slim
-touch /workspace/runpod-slim/comfyui_args.txt
-
 echo "Installing custom nodes..."
-cd /workspace/ComfyUI/custom_nodes
+NODES_DIR="/workspace/runpod-slim/ComfyUI/custom_nodes"
+mkdir -p "$NODES_DIR"
+cd "$NODES_DIR"
 
-install_if_missing () {
+install_if_missing() {
     if [ ! -d "$2" ]; then
         git clone "$1" "$2"
     fi
@@ -22,5 +21,5 @@ install_if_missing https://github.com/yolain/ComfyUI-Easy-Use ComfyUI-Easy-Use
 install_if_missing https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite ComfyUI-VideoHelperSuite
 install_if_missing https://github.com/Kijai/ComfyUI-WanAnimatePreprocess ComfyUI-WanAnimatePreprocess
 
-echo "Starting ComfyUI..."
+echo "Starting original start.sh..."
 exec /start.sh
