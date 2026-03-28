@@ -2,38 +2,36 @@ FROM runpod/comfyui:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Кладём модели в /model-cache/ — вне volume /workspace
-# Иначе volume при монтировании перекроет всё что в /workspace
 WORKDIR /model-cache
 
 RUN mkdir -p diffusion_models loras clip_vision vae clip detection
 
-# ── Diffusion model ──────────────────────────────────────────────────────────
+# Diffusion
 RUN wget -q --show-progress \
     -O diffusion_models/Wan21_SteadyDancer_fp8_e4m3fn_scaled_KJ.safetensors \
     "https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/resolve/main/SteadyDancer/Wan21_SteadyDancer_fp8_e4m3fn_scaled_KJ.safetensors"
 
-# ── LoRA ─────────────────────────────────────────────────────────────────────
+# LoRA
 RUN wget -q --show-progress \
     -O loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors \
     "https://huggingface.co/dci05049/wan-animate/resolve/main/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors"
 
-# ── CLIP Vision ───────────────────────────────────────────────────────────────
+# CLIP Vision
 RUN wget -q --show-progress \
     -O clip_vision/clip_vision_h.safetensors \
     "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/clip_vision/clip_vision_h.safetensors"
 
-# ── VAE ───────────────────────────────────────────────────────────────────────
+# VAE
 RUN wget -q --show-progress \
     -O vae/Wan2_1_VAE_bf16.safetensors \
     "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Wan2_1_VAE_bf16.safetensors"
 
-# ── CLIP / Text Encoder ───────────────────────────────────────────────────────
+# Text encoder
 RUN wget -q --show-progress \
     -O clip/umt5-xxl-enc-bf16.safetensors \
     "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/umt5-xxl-enc-bf16.safetensors"
 
-# ── Detectors ─────────────────────────────────────────────────────────────────
+# Detectors
 RUN wget -q --show-progress \
         -O detection/yolov10m.onnx \
         "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B/resolve/main/process_checkpoint/det/yolov10m.onnx" && \
@@ -47,11 +45,10 @@ RUN wget -q --show-progress \
         -O detection/vitpose-l-wholebody.onnx \
         "https://huggingface.co/JunkyByte/easy_ViTPose/resolve/main/onnx/wholebody/vitpose-l-wholebody.onnx"
 
-# Скрипт копирует модели из /model-cache/ в /workspace/ComfyUI/models/ при первом старте
 COPY copy_models.sh /copy_models.sh
 RUN chmod +x /copy_models.sh
 
-# Вшиваем вызов в начало entrypoint базового образа
-RUN sed -i '1s|^|/copy_models.sh\n|' /start.sh
+# вставляем ПОСЛЕ shebang
+RUN sed -i '2i /bin/bash /copy_models.sh' /start.sh
 
 WORKDIR /
